@@ -1,5 +1,5 @@
 const servicesController = {};
-const mysql = require('../src/connection');
+const mysql = require('../src/middleware/connection');
 
 servicesController.getAllSubCategories = async (req, res) => {
     let dataForm = req.params.id;

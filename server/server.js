@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-require ('./src/connection');
+require('dotenv').config();
 
 //Config Apis
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,6 +15,7 @@ app.use(cors({origin:true}))
 app.use("/entitys", require("./routes/entitysRoutes"));
 app.use("/categories", require("./routes/categoriesRoutes"));
 app.use("/subCategories", require("./routes/subCategoriesRoutes"));
+app.use("/users", require("./routes/validateUser"));
 
 app.listen(9000, () => {
     console.log('server running on', 'http://localhots:' + 9000 );
