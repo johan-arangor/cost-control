@@ -46,6 +46,62 @@ export default function ChangePassword() {
 		});
 	};
 
+    const NotToken = () => {
+        return(                    
+            <>
+                <Col lg='12' md='12' sm='12' className='p-5'>
+                    <h1 class='text-center'>Cambio de contraseña</h1>
+                    <h1 class='text-center'>Token invalido o vencido</h1>
+                    <p className='text-center'>
+                        El token está vencido solicite de nuevo una contraseña <span><a href='/renewPassword'>solicitela aquí</a></span>
+                    </p>
+                    <Container>
+                        <Image src={ imageLogo } fluid />
+                    </Container>
+                </Col>
+            </>
+        );
+    }
+
+    const ValidToken = () => {
+        return(
+            <>
+                <Col lg='6' md='6' sm='12'>
+                    <Container fluid style={{height: '100%'}} className='justify-content-center p-5'>
+                        <h1 class='text-center'>Cambiar contraseña</h1>
+                        <Form fluid style={{height: '100%'}} className='justify-content-center p-3' onSubmit={ sendForm }>
+                            <Form.Group className="mb-3" controlId="password">
+                                <Form.Label>Contraseña</Form.Label>
+                                <Form.Control size="lg" type="password" placeholder="Contraseña" name="password" min={8} onChange={(e) => handleChangeForm(e.target)} value={getForm.password} required/>
+                                    <Form.Text className="text-muted">
+                                        La cntraseña debe tener 8 caractere mínimo
+                                    </Form.Text>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="confirmPassword">
+                                <Form.Label>Confirmar Contraseña</Form.Label>
+                                <Form.Control size="lg" type="password" placeholder="Confirmar Contraseña" name="confirmPassword" onChange={(e) => handleChangeForm(e.target)} value={getForm.confirmPassword} required/>
+                                    <Form.Text style={{color: 'red'}}>
+                                        {getTextPassword && ('Las contraseñas no oinciden')}
+                                    </Form.Text>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="password">
+                                <Row>
+                                    <Button size="lg" variant="outline-primary btn-block" type="submit" disabled={getTextPassword} block>
+                                        Cambiar contraseña
+                                    </Button>
+                                </Row>
+                            </Form.Group>
+                        </Form>
+                    </Container>
+                </Col>
+                <Col lg='6' md='6' sm='12' className='p-5'>
+                    <Container>
+                        <Image src={ imageLogo } fluid />
+                    </Container>
+                </Col>
+            </>
+        );
+    }
     async function sendForm(e){
         e.preventDefault();
 
@@ -73,54 +129,9 @@ export default function ChangePassword() {
             <Card border='0' className='m-5 shadow-lg'>
             <Row className='justify-content-center'>
                 {!getToken ? (
-                    <>
-                        <Col lg='12' md='12' sm='12' className='p-5'>
-                            <h1 class='text-center'>Cambio de contraseña</h1>
-                            <h1 class='text-center'>Token invalido o vencido</h1>
-                            <p className='text-center'>
-                                El token está vencido solicite de nuevo una contraseña <span><a href='/renewPassword'>solicitela aquí</a></span>
-                            </p>
-                            <Container>
-                                <Image src={ imageLogo } fluid />
-                            </Container>
-                        </Col>
-                    </>
+                    <NotToken />
                 ) : (
-                    <>
-                        <Col lg='6' md='6' sm='12'>
-                            <Container fluid style={{height: '100%'}} className='justify-content-center p-5'>
-                                <h1 class='text-center'>Cambiar contraseña</h1>
-                                <Form fluid style={{height: '100%'}} className='justify-content-center p-3' onSubmit={ sendForm }>
-                                    <Form.Group className="mb-3" controlId="password">
-                                        <Form.Label>Contraseña</Form.Label>
-                                        <Form.Control size="lg" type="password" placeholder="Contraseña" name="password" min={8} onChange={(e) => handleChangeForm(e.target)} value={getForm.password} required/>
-                                            <Form.Text className="text-muted">
-                                                La cntraseña debe tener 8 caractere mínimo
-                                            </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="confirmPassword">
-                                        <Form.Label>Confirmar Contraseña</Form.Label>
-                                        <Form.Control size="lg" type="password" placeholder="Confirmar Contraseña" name="confirmPassword" onChange={(e) => handleChangeForm(e.target)} value={getForm.confirmPassword} required/>
-                                            <Form.Text style={{color: 'red'}}>
-                                                {getTextPassword && ('Las contraseñas no oinciden')}
-                                            </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="password">
-                                        <Row>
-                                            <Button size="lg" variant="outline-primary btn-block" type="submit" disabled={getTextPassword} block>
-                                                Cambiar contraseña
-                                            </Button>
-                                        </Row>
-                                    </Form.Group>
-                                </Form>
-                            </Container>
-                        </Col>
-                        <Col lg='6' md='6' sm='12' className='p-5'>
-                            <Container>
-                                <Image src={ imageLogo } fluid />
-                            </Container>
-                        </Col>
-                    </>
+                    <ValidToken />
                 )}
                 </Row>
             </Card>
