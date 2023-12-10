@@ -1,8 +1,7 @@
 const global = {};
 
+global.SECRETORPRIVATEKEY='Pru3v4';
 global.url='http://localhost:9000';
-let token = localStorage.getItem('token');
-
-global.token = token;
+global.token = localStorage.getItem('Token-costControl');
 
 module.exports = global;
