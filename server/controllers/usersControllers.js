@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const moment = require('moment'); 
 const jwtGenerator = require('../src/middleware/generateJwt');
 const transporter = require('../src/middleware/configEmail');
+const templateRenewHtml = require('../features/templates/renewPassword.jsx');
 require('dotenv').config();
 
 usersController.login = async (req, res) => {
@@ -43,7 +44,7 @@ usersController.login = async (req, res) => {
                 });
             }
         })
-        .catch(() => {
+        .catch((error) => {
             res.status(400)
             .send({
                 data: null,
@@ -434,6 +435,7 @@ async function SendEmailRenew(user){
     };
     let jwtGenerated = await jwtGenerator.generateRenew(profile);
     let jwtLink = `${process.env.PATH_LINK}changePassword/${jwtGenerated}`;
+    let messageHtml = templateRenewHtml.renewPasswordHtml(jwtLink);
 
     try {
         await transporter.sendMail({
@@ -443,20 +445,7 @@ async function SendEmailRenew(user){
             },
             to: user,
             subject: 'envío de recuperación de contraseña',
-            html: `
-                <!DOCTYPE html>
-                <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-                <head>
-                    <meta charset="utf-8"> <!-- utf-8 works for most cases -->
-                    <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
-                    <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
-                    <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
-                </head>
-                <body>
-                    <br>
-                    <h1><a href="${jwtLink}">click para cambiar la contraseña</a></h1>
-                </body>`
+            html: messageHtml
         });
     } catch (error) {
     }
