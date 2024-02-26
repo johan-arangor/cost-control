@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const route = Router();
-const categoriesControllers = require("../controllers/categoriesControllers");
+const    categoriesControllers = require("../controllers/categoriesControllers");
 // const {validateJWT} = require ("../src/middleware/validateJwt");
 
 route.all("/", function(res, req, next) {
