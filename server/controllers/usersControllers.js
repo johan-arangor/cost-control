@@ -6,7 +6,6 @@ const moment = require('moment');
 const jwtGenerator = require('../src/middleware/generateJwt');
 const transporter = require('../src/middleware/configEmail');
 const templateRenewHtml = require('../features/templates/renewPassword.jsx');
-require('dotenv').config();
 
 usersController.login = async (req, res) => {
     let dataForm = req.body;

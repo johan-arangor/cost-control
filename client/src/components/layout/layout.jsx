@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 import Menu from '../menu/menu';
 import Footer from '../footer/footer';
 import { Container } from 'react-bootstrap';

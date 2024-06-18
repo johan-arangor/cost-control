@@ -43,7 +43,9 @@ export default function Login() {
                 });
             })
             .catch((response) => {
-                Swal.fire(response.response.data)
+                let message = response.response.data.message !== undefined ? response.response.data.message : response.response.data;
+                
+                Swal.fire(message);
             });
     }
 

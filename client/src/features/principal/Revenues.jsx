@@ -1,9 +1,10 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Modal, Button, Form } from 'react-bootstrap';
 import { url } from "../../globals";
 import axios from 'axios';
 import moment from 'moment';
 import Swal from "sweetalert2";
+import Select from 'react-select';
 
 const initialForm = {
     value: '',
@@ -14,15 +15,25 @@ const initialForm = {
 
 export default function Revenues({stateModalRevenue, getStateModal}) {
 	const [getForm, setForm] = useState(initialForm);
+    const [getDataCategory, setDataCategory] = useState();
+    const [getDataSubCategory, setDataSubCategory] = useState();
+    const [getSelectedCategory, setSelectedCategory] = useState();
+    const [getSelectedSubCategory, setSelectedSubCategory] = useState();
+
+    useEffect(() => {
+        getAllCategory();
+    }, []);
 
     const getAllCategory = async () => {
-        await axios.get(url + "/categories/getAllCategories")
-            .then((result) => {
-                setData(result.data.data);
-            })
-            .catch((error) => {
-                Swal.fire(error.response.data.message);
-            });
+        await axios.get(`${url}/categories/getAllCategories`)
+        .then((result) => {
+            let dataSelect = result.data.data;
+            
+            setDataCategory(dataSelect);  
+        })
+        .catch((error) => {
+            Swal.fire(error.response.data.message);
+        });
     }
 
     const handleChangeForm = (e) => {
@@ -42,7 +53,29 @@ export default function Revenues({stateModalRevenue, getStateModal}) {
 		});
 	};
 
-console.log('formData', getForm);
+    const handleChangeSelectCategory = async (e) => {
+        setSelectedCategory(e);
+
+        await axios.get(`${url}/subCategories/getAllSubCategories/${e.value}`)
+        .then((result) => {
+            let dataSelect = result.data.data;
+            setDataSubCategory(dataSelect);
+            console.log('getDataSubCategory',getDataSubCategory);
+        })
+        .catch((error) => {
+            Swal.fire(error.response.data.message);
+        });
+    }
+
+    const handleChangeSelectSubCategory = (e) => {
+        setSelectedSubCategory(e);
+
+        setForm({
+            ...getForm,
+            subCategoryId: e.value,
+        });
+    }
+
     return(
         <Fragment>
             <Modal 
@@ -60,7 +93,7 @@ console.log('formData', getForm);
                             <Form.Label>Valor</Form.Label>
                             <Form.Control
                                 name="value"
-                                size="lg" 
+                                size="md" 
                                 type="number" 
                                 placeholder="Valor"
                                 value={getForm.value}
@@ -73,7 +106,7 @@ console.log('formData', getForm);
                             <Form.Label>Fecha</Form.Label>
                             <Form.Control
                                 name="date"
-                                size="lg" 
+                                size="md" 
                                 type="date" 
                                 value={getForm.date}
                                 onChange={(e) => handleChangeForm(e.target)}
@@ -83,35 +116,27 @@ console.log('formData', getForm);
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Categoría</Form.Label>
-                            <Form.Control
-                                name="value"
-                                size="lg" 
-                                type="number" 
-                                placeholder="Categoría"
-                                value={getForm.value}
-                                onChange={(e) => handleChangeForm(e.target)}
-                                required
-                            >
-                            </Form.Control>
+                            <Select
+                                placeholder={"Seleccione una categoría"}
+                                value={getSelectedCategory}
+                                onChange={(e) => handleChangeSelectCategory(e)}
+                                options={getDataCategory}
+                            />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Sub-Categoría</Form.Label>
-                            <Form.Control
-                                name="subCategoryId"
-                                size="lg" 
-                                type="number" 
-                                placeholder="Sub-Categoría"
-                                value={getForm.subCategoryId}
-                                onChange={(e) => handleChangeForm(e.target)}
-                                required
-                            >
-                            </Form.Control>
+                            <Select
+                                placeholder={"Seleccione una Sub-Categoría"}
+                                value={getSelectedSubCategory}
+                                onChange={(e) => handleChangeSelectSubCategory(e)}
+                                options={getDataSubCategory}
+                            />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Ingrese Número de Factura</Form.Label>
                             <Form.Control
                                 name="invoiceNumber"
-                                size="lg" 
+                                size="md" 
                                 type="text" 
                                 placeholder="(OPCIONAL)"
                                 value={getForm.invoiceNumber}
@@ -123,11 +148,8 @@ console.log('formData', getForm);
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={stateModalRevenue}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={stateModalRevenue}>
-                    Save Changes
+                <Button variant="success" onClick={stateModalRevenue}>
+                    Guardar
                 </Button>
                 </Modal.Footer>
             </Modal>

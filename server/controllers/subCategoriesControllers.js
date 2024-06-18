@@ -4,7 +4,7 @@ const mysql = require('../src/middleware/connection');
 servicesController.getAllSubCategories = async (req, res) => {
     let dataForm = req.params.id;
 
-    mysql.query(`SELECT * FROM categories_sub WHERE id_category = ${dataForm} AND disable = 0`, 
+    mysql.query(`SELECT id AS value, name AS label FROM categories_sub WHERE id_category = ${dataForm} AND disable = 0`, 
     function (err, result) 
     {
         if (err) {

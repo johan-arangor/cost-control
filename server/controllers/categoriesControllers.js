@@ -2,9 +2,7 @@ const servicesController = {};
 const mysql = require('../src/middleware/connection');
 
 servicesController.getAllCategories = async (req, res) => {
-    let dataForm = req.body;
-    
-    mysql.query(`SELECT * FROM categories WHERE disable = 0`, 
+    mysql.query(`SELECT id AS value, name AS label FROM categories WHERE disable = 0`, 
     function (err, result) 
     {
         if (err) {
