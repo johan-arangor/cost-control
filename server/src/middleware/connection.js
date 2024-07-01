@@ -1,10 +1,24 @@
-const mysql = require('mysql');
+console.log('data', 'data de mi connection');
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  database: 'controlcost',
-  user: 'root',
-  password: ''
+
+const { Sequelize } = require('sequelize');
+
+const sequalize = new Sequelize('costcontrol', 'root', '', {
+    // host: process.env.HOST_DB,
+    // dialect: process.env.DIALECT_DB,
+    // port: process.env.PORT_DB
+    host: 'localhost',
+    dialect: 'mysql',
+    port: 3306
 });
 
-module.exports = connection;
+async function connection() {
+  try {
+    await sequalize.authenticate();
+    console.log('connection OK');
+  } catch (error) {
+    console.log('error connection:', error);
+  }
+}
+
+connection();
