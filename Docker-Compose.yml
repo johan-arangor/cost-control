@@ -1,0 +1,45 @@
+version: '3.8' # la version del compose
+services: #definir los servicios que quiere tener
+  backend: #nombre con el que se identifica mi servicio
+    container_name: back-cost-control-nodejs #nombre del contenedor que tiene el servicio
+    build: 
+      context: ./Backend #porque está a nivel el dockerfile #context: buildContext #nombre del contenedor si es donde tengo los mismos contenedores
+    ports:
+      - "9000:9000" #puerto de salida local : puerto que expone el docker
+    volumes:
+      - ./Backend:/app #para actualizar la app sin necesidad de re cargarlo
+    depends_on:
+      - mysql_db
+
+  frontend:
+    container_name: front-cost-control-reacjs
+    build:
+      context: ./Frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Frontend:/app
+    depends_on:
+      - backend
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  mysql_db:
+    container_name: data_base-costcontrol-mysql
+    image: mysql:latest
+    ports:
+      - "3306:3306" #izq puerto interno: der puerto interno
+    environment:
+      MYSQL_ROOT_PASSWORD: Admin123*
+      MYSQL_DATABASE: costcontrol
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Admin123*
+    restart: always #para reiniciar el servicio o la bd
+    volumes:
+      - db-data:/var/lib/mysql #ruta para almacenar los datos
+    
+volumes:
+  db-data: {}
+
+  #Comandos en cmd
+  #docker compose up --build si pongo -d no veo la consola docker compose up -d --build
