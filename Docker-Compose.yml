@@ -37,6 +37,14 @@ services: #definir los servicios que quiere tener
     restart: always #para reiniciar el servicio o la bd
     volumes:
       - db-data:/var/lib/mysql #ruta para almacenar los datos
+
+  seed:
+    image: myapp
+    build:
+      context: .
+    depends_on:
+      - db
+    command: npx sequelize-cli db:seed:all
     
 volumes:
   db-data: {}
