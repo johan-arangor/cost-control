@@ -6,6 +6,8 @@ services: #definir los servicios que quiere tener
       context: ./Backend #porque está a nivel el dockerfile #context: buildContext #nombre del contenedor si es donde tengo los mismos contenedores
     ports:
       - "9000:9000" #puerto de salida local : puerto que expone el docker
+    environment:
+      - NODE_ENV=development
     volumes:
       - ./Backend:/app #para actualizar la app sin necesidad de re cargarlo
     depends_on:
@@ -43,7 +45,7 @@ services: #definir los servicios que quiere tener
     build:
       context: .
     depends_on:
-      - db
+      - mysql_db
     command: npx sequelize-cli db:seed:all
     
 volumes:
