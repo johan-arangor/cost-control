@@ -18,3 +18,5 @@ async function connection() {
 }
 
 connection();
+
+module.exports = sequalize;

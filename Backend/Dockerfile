@@ -6,6 +6,8 @@ COPY . .
 
 RUN npm install
 
+RUN npm run sync-db
+
 EXPOSE 9000
 
 CMD ["npm", "start"]

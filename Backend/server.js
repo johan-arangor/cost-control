@@ -4,8 +4,9 @@ const cors = require("cors");
 const dataBase = require('./src/database/models');
 const bodyParser = require("body-parser");
 require('dotenv').config();
+const {PORT_BACK, VERSION_API} = process.env;
 
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || PORT_BACK;
 
 //Config Apis
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -2,24 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const sequelize = require('sequelize');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require('../config/config.js')[env];
+const sequelize = require('../../middleware/connection');
 const db = {};
-
-//Inyectando los datos de conexión
-const sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    {
-      host: config.host,
-      port: config.port,
-      dialect: config.dialect,
-    }
-  );
 
 // Verifica la conexión a la base de datos
 sequelize.authenticate()
@@ -33,9 +20,9 @@ sequelize.authenticate()
 // Lee los archivos de modelos y los importa
 fs.readdirSync(__dirname)
     .filter(file => {
-        return (file.indexOf('.') != 0) && (fle !== basename) && (file.slice(-3) == '.js'); //Busca los modelos
+        return (file.indexOf('.') != 0) && (file !== basename) && (file.slice(-3) == '.js'); //Busca los modelos
     })
-    .forEach(fle => {
+    .forEach(file => {
         const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
         db[model.name] = model;
     });
@@ -49,10 +36,10 @@ Object
     });
 
 // Exporta la instancia de Sequelize y los modelos
-db.sequalize = sequalize;
+db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 //Actualizacion de las tablas cuando hay cambios
-sequalize.sync();
+sequelize.sync();
 
 module.exports = db;
