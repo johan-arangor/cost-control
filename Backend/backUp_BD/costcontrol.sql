@@ -1,89 +1,280 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Versión del servidor:         10.4.26-MariaDB - mariadb.org binary distribution
--- SO del servidor:              Win64
--- HeidiSQL Versión:             11.3.0.6295
--- --------------------------------------------------------
+-- Crear las bases de datos
+CREATE DATABASE IF NOT EXISTS costcontrol_development;
+CREATE DATABASE IF NOT EXISTS costcontrol_test;
+CREATE DATABASE IF NOT EXISTS costcontrol_production;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- Seleccionar la base de datos costcontrol_development y crear tablas
+USE costcontrol_development;
 
+-- Eliminar tablas existentes si existen
+DROP TABLE IF EXISTS income_tags,
+expense_tags,
+incomes,
+expenses,
+tags,
+user_categories,
+predefined_categories,
+vehicles,
+users CASCADE;
 
--- Volcando estructura de base de datos para controlcost
-CREATE DATABASE IF NOT EXISTS `controlcost` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `controlcost`;
+-- Crear tablas
 
--- Volcando estructura para tabla controlcost.categories
-CREATE TABLE IF NOT EXISTS `categories` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `disable` tinyint(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL
+);
 
--- Volcando datos para la tabla controlcost.categories: ~1 rows (aproximadamente)
-/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` (`id`, `name`, `disable`) VALUES
-	(2, 'categoria 1.1', 0);
-/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+CREATE TABLE vehicles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  make TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year INT NOT NULL
+);
 
--- Volcando estructura para tabla controlcost.categories_sub
-CREATE TABLE IF NOT EXISTS `categories_sub` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `disable` tinyint(4) NOT NULL DEFAULT 0,
-  `id_category` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `FK_Category_sub_Category` (`id_category`),
-  CONSTRAINT `FK_Category_sub_Category` FOREIGN KEY (`id_category`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+CREATE TABLE predefined_categories (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
 
--- Volcando datos para la tabla controlcost.categories_sub: ~2 rows (aproximadamente)
-/*!40000 ALTER TABLE `categories_sub` DISABLE KEYS */;
-INSERT INTO `categories_sub` (`id`, `name`, `disable`, `id_category`) VALUES
-	(1, 'sub categoria 1', 0, 2),
-	(2, 'sub categoria 2', 0, 2);
-/*!40000 ALTER TABLE `categories_sub` ENABLE KEYS */;
+CREATE TABLE user_categories (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  category_id TEXT REFERENCES predefined_categories (id)
+);
 
--- Volcando estructura para tabla controlcost.entitys
-CREATE TABLE IF NOT EXISTS `entitys` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `disable` tinyint(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+CREATE TABLE expenses (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  vehicle_id TEXT REFERENCES vehicles (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
 
--- Volcando datos para la tabla controlcost.entitys: ~3 rows (aproximadamente)
-/*!40000 ALTER TABLE `entitys` DISABLE KEYS */;
-INSERT INTO `entitys` (`id`, `name`, `disable`) VALUES
-	(1, 'ttttttt', 0),
-	(2, 'erterter', 1),
-	(3, 'hola', 0);
-/*!40000 ALTER TABLE `entitys` ENABLE KEYS */;
+CREATE TABLE incomes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
 
--- Volcando estructura para tabla controlcost.users
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` varchar(50) NOT NULL,
-  `user` varchar(100) NOT NULL DEFAULT '',
-  `userName` varchar(150) DEFAULT '',
-  `password` longtext NOT NULL,
-  `dateCreate` date NOT NULL,
-  `lastDate` date NOT NULL,
-  `disable` tinyint(4) NOT NULL DEFAULT 0,
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  predefined_category_id TEXT REFERENCES predefined_categories (id),
+  user_category_id TEXT REFERENCES user_categories (id)
+);
 
--- Volcando datos para la tabla controlcost.users: ~0 rows (aproximadamente)
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `user`, `userName`, `password`, `dateCreate`, `lastDate`, `disable`) VALUES
-	('387abef3-c39e-49b9-95d8-2b9753170ce8', 'johan.arangor@hotmail.com', '', 'f321809ee7669e2c092ed872fd26fd1aa4745d917a5f7dff402905d5fde2e6c7a58fdb2340ab06eed0892120b6cbd8053c1f6d11c1a13333b030fdf4fdf705c4c173b52ff7ebe106b9a694a1639f310cc4fd393174f83422f3fcbd8ee7a4843ea60eb6629afe17236d', '2023-12-10', '2023-12-10', 0);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+CREATE TABLE expense_tags (
+  expense_id TEXT REFERENCES expenses (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (expense_id, tag_id)
+);
 
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+CREATE TABLE income_tags (
+  income_id TEXT REFERENCES incomes (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (income_id, tag_id)
+);
+
+-- Repetir para costcontrol_test
+USE costcontrol_test;
+
+-- Eliminar tablas existentes si existen
+DROP TABLE IF EXISTS income_tags,
+expense_tags,
+incomes,
+expenses,
+tags,
+user_categories,
+predefined_categories,
+vehicles,
+users CASCADE;
+
+-- Crear tablas
+
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE vehicles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  make TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year INT NOT NULL
+);
+
+CREATE TABLE predefined_categories (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE user_categories (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  category_id TEXT REFERENCES predefined_categories (id)
+);
+
+CREATE TABLE expenses (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  vehicle_id TEXT REFERENCES vehicles (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE incomes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  predefined_category_id TEXT REFERENCES predefined_categories (id),
+  user_category_id TEXT REFERENCES user_categories (id)
+);
+
+CREATE TABLE expense_tags (
+  expense_id TEXT REFERENCES expenses (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (expense_id, tag_id)
+);
+
+CREATE TABLE income_tags (
+  income_id TEXT REFERENCES incomes (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (income_id, tag_id)
+);
+
+-- Repetir para costcontrol_production
+USE costcontrol_production;
+
+-- Eliminar tablas existentes si existen
+DROP TABLE IF EXISTS income_tags,
+expense_tags,
+incomes,
+expenses,
+tags,
+user_categories,
+predefined_categories,
+vehicles,
+users CASCADE;
+
+-- Crear tablas
+
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE vehicles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  make TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year INT NOT NULL
+);
+
+CREATE TABLE predefined_categories (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE user_categories (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  category_id TEXT REFERENCES predefined_categories (id)
+);
+
+CREATE TABLE expenses (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  vehicle_id TEXT REFERENCES vehicles (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE incomes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  category_id TEXT REFERENCES predefined_categories (id) ON DELETE SET NULL,
+  user_category_id TEXT REFERENCES user_categories (id) ON DELETE SET NULL,
+  amount NUMERIC(10, 2) CHECK (amount > 0) NOT NULL,
+  date DATE NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users (id),
+  name TEXT NOT NULL,
+  predefined_category_id TEXT REFERENCES predefined_categories (id),
+  user_category_id TEXT REFERENCES user_categories (id)
+);
+
+CREATE TABLE expense_tags (
+  expense_id TEXT REFERENCES expenses (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (expense_id, tag_id)
+);
+
+CREATE TABLE income_tags (
+  income_id TEXT REFERENCES incomes (id),
+  tag_id TEXT REFERENCES tags (id),
+  PRIMARY KEY (income_id, tag_id)
+);
+
+-- Insertar datos predefinidos en categories
+INSERT INTO predefined_categories (id, name)
+VALUES
+  ('550e8400-e29b-41d4-a716-446655440000', 'Personal'),
+  ('550e8400-e29b-41d4-a716-446655440001', 'Vehiculo')
+
+-- Insertar datos predefinidos en tags
+INSERT INTO tags (id, user_id, name, predefined_category_id, user_category_id) VALUES 
+('550e8400-e29b-41d4-a716-446655440002', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Vivienda'),
+('550e8400-e29b-41d4-a716-446655440003', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Alimentación'),
+('550e8400-e29b-41d4-a716-446655440004', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Salud'),
+('550e8400-e29b-41d4-a716-446655440005', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Educación'),
+('550e8400-e29b-41d4-a716-446655440006', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Transporte'),
+('550e8400-e29b-41d4-a716-446655440007', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Entretenimiento'),
+('550e8400-e29b-41d4-a716-446655440008', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Ropa y Calzado'),
+('550e8400-e29b-41d4-a716-446655440009', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Educación y Desarrollo'),
+('550e8400-e29b-41d4-a716-446655440010', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Deudas y Préstamos'),
+('550e8400-e29b-41d4-a716-446655440011', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Ahorro e Inversiones'),
+('550e8400-e29b-41d4-a716-446655440012', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Suscripciones'),
+('550e8400-e29b-41d4-a716-446655440013', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440000', null, 'Otros Gastos'),
+('550e8400-e29b-41d4-a716-446655440014', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Combustible'),
+('550e8400-e29b-41d4-a716-446655440015', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Mantenimiento'),
+('550e8400-e29b-41d4-a716-446655440016', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Seguro'),
+('550e8400-e29b-41d4-a716-446655440017', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Estacionamiento'),
+('550e8400-e29b-41d4-a716-446655440018', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Peajes'),
+('550e8400-e29b-41d4-a716-446655440019', '00000000-0000-0000-0000-000000000000', '550e8400-e29b-41d4-a716-446655440001', null, 'Accesorios y Mejoras');

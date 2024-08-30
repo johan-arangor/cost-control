@@ -1,0 +1,2 @@
+# imagen oficial de Jenkins
+FROM jenkins/jenkins:latest
