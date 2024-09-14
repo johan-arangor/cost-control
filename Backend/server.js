@@ -1,12 +1,13 @@
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const dataBase = require('./src/database/models');
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const {PORT_BACK, VERSION_API} = process.env;
-
 const PORT = process.env.PORT || PORT_BACK;
+
+// Importa el script de sincronización
+const syncDatabase = require('./syncDataBase');
 
 //Config Apis
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,14 +23,14 @@ app.use(`/api/${VERSION_API}/subCategories`, require("./routes/subCategoriesRout
 app.use(`/api/${VERSION_API}/users`, require("./routes/validateUser"));
 
 //Migrate Database
-dataBase.sequelize.sync()
+syncDatabase()
     .then(() => {
         app.listen(9000, () => {
-            console.log(`server running on http://localhots: ${PORT}` );
+            console.log(`[OK] server running on http://localhots: ${PORT}` );
         });
     })
     .catch((error) => {
-        console.log('Error creating database:', error);
+        console.log('[ERROR] Error creating database:', error);
     });
 
 //comandos squelize

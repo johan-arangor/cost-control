@@ -23,4 +23,14 @@ module.exports = {
         "host": HOST_DB,
         "dialect": DIALECT_DB
     },
+    //Configuracion de Seeds
+    seederStorage: "sequelize",
+    //seederStoragePath: "sequelizeSeeds.json"
+    seederStorageTableName: "SequelizeSeeds",
+    //Configurations migrations
+    migrationStorage: "sequelize",
+    migrationStorageTableName: "migrations",
+    define: {
+        underscored: true
+    }
 }

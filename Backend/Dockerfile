@@ -6,7 +6,7 @@ COPY . .
 
 RUN npm install
 
-RUN npm run sync-db
+# RUN npm run sync-db
 
 EXPOSE 9000
 
