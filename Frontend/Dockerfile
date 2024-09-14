@@ -19,4 +19,4 @@ EXPOSE 3000
 
 # Comando para iniciar el servidor web
 # CMD ["serve", "-s", "build"]
-CMD ["npm", "start"]
+CMD ["npm", "run start"]
