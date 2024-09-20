@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Clona el repositorio
-                git branch: 'main', url: 'https://github.com/johan-arangor/cost-control'
+                git branch: 'master', url: 'https://github.com/johan-arangor/cost-control'
             }
         }
 
