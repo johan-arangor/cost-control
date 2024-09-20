@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    environment {
+        // Variables de entorno
+        MYSQL_ROOT_PASSWORD = 'Admin123*'
+        MYSQL_DATABASE = 'costcontrol'
+        MYSQL_USER = 'admin'
+        MYSQL_PASSWORD = 'Admin123*'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clona el repositorio
+                git branch: 'main', url: 'https://github.com/johan-arangor/cost-control'
+            }
+        }
+
+        stage('Build and Start Containers') {
+            steps {
+                script {
+                    // Construye y levanta los servicios de Docker
+                    sh 'docker-compose -f docker-compose.yml up -d --build'
+                }
+            }
+        }
+
+        // stage('Run Tests') {
+        //     steps {
+        //         script {
+        //             // pruebas del backend con Jest
+        //             sh 'docker exec back-costcontrol-nodejs npm test'
+                    
+        //             // Pruebas en el frontend
+        //             sh 'docker exec front-costcontrol-reactjs npm run test'
+        //         }
+        //     }
+        // }
+
+        stage('Stop Containers') {
+            steps {
+                script {
+                    // Detiene y elimina los contenedores
+                    sh 'docker-compose -f docker-compose.yml down'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Limpieza del pipeline
+            script {
+                sh 'docker-compose down --volumes'
+            }
+        }
+
+        success {
+            echo 'Pipeline ejecutado correctamente!'
+        }
+
+        failure {
+            echo 'El pipeline ha fallado!'
+        }
+    }
+}
