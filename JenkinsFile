@@ -19,10 +19,8 @@ pipeline {
 
         stage('Build and Start Containers') {
             steps {
-                script {
-                    // Construye y levanta los servicios de Docker
-                    sh 'docker-compose -f docker-compose.yml up -d --build'
-                }
+                // Construye y levanta los servicios de Docker
+                sh 'docker-compose -f docker-compose.yml up -d --build'
             }
         }
 
